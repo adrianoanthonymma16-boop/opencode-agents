@@ -739,16 +739,16 @@ O agente não instala automaticamente. Quando detectar uma lacuna, o agente:
 ## Skills Node.js/TypeScript/Backend instaladas — Referência Rápida
 
 | Skill | Uso | Gatilho automático |
-|-------|-----|-------------------|
-| `typescript-core` | Padrões avançados de TS (tipos, config, validação runtime) | Qualquer projeto TypeScript |
-| `nodejs-backend` | Setup de servidor com Express/Fastify, estrutura de pastas | Início de projeto backend Node.js |
-| `express-rest-api` | Rotas REST, validação, error handling com Express | Framework escolhido é Express |
-| `express-production` | Helmet, CORS, rate-limit, PM2, graceful shutdown | Deploy/produção com Express |
-| `fastify` | Framework de alta performance com schema-based validation | Performance critica ou TS-first |
-| `drizzle` | ORM type-safe com zero overhead, migrations, relações | Banco relacional (PG/MySQL/SQLite) |
-| `zod` | Schema validation com inference de tipos TypeScript | Validar inputs/outputs de qualquer dado |
-| `api-design-patterns` | REST/GraphQL/gRPC, versionamento, rate limiting, idempotency | Projetar qualquer API |
-| `jwt-authentication` | JWT access/refresh tokens, RBAC, password reset | Backend com autenticação |
-| `websocket-realtime-builder` | Socket.io, rooms, namespaces, presence, Redis adapter | Chat, notificações, dashboards ao vivo |
-| `tanstack-query` | Cache automático, background refetch, optimistic updates | Frontend React consumindo APIs |
-| `fusion-backend-dev` | Padrões de consumo/integração de APIs backend | Integrar com APIs existentes |
+|---|---|---|
+| typescript-core | Padrões avançados de TS (tipos, config, validação runtime) | Qualquer projeto TypeScript |
+| nodejs-backend | Setup de servidor com Express/Fastify, estrutura de pastas | Início de projeto backend Node.js |
+| express-rest-api | Rotas REST, validação, error handling com Express | Framework escolhido é Express |
+| express-production | Helmet, CORS, rate-limit, PM2, graceful shutdown | Deploy/produção com Express |
+| fastify | Framework de alta performance com schema-based validation | Performance crítica ou TS-first |
+| drizzle | ORM type-safe com zero overhead, migrations, relações | Banco relacional (PG/MySQL/SQLite) |
+| zod | Schema validation com inference de tipos TypeScript | Validar inputs/outputs de qualquer dado |
+| api-design-patterns | REST/GraphQL/gRPC, versionamento, rate limiting, idempotency | Projetar qualquer API |
+| jwt-authentication | JWT access/refresh tokens, RBAC, password reset | Backend com autenticação |
+| websocket-realtime-builder | Socket.io, rooms, namespaces, presence, Redis adapter | Chat, notificações, dashboards ao vivo |
+| tanstack-query | Cache automático, background refetch, optimistic updates | Frontend React consumindo APIs |
+| fusion-backend-dev | Padrões de consumo/integração de APIs backend | Integrar com APIs existentes |
