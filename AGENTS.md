@@ -83,6 +83,18 @@ Se o pedido for só um mockup rápido pra validar ideia: `gsd-sketch`/`prototype
 
 ---
 
+## Regra 5.1 — Frontend Vanilla (HTML/CSS/JS puro)
+
+**Gatilho:** qualquer arquivo `.html`, `.css`, ou `.js` (sem framework) sendo criado ou editado, OU menção a "vanilla", "puro", "sem framework".
+
+**Ação automática:**
+1. `html-css-best-practices` — aplicado durante toda escrita de HTML/CSS. Regras: semântica HTML, acessibilidade, CSS organizado, responsividade.
+2. `frontend-design` — roda quando o design precisa de direção (estilo, paleta, tipografia, composição). Se o design já estiver definido, pula.
+
+**Diferença da Regra 5:** a Regra 5 é pra React/Next.js (`.tsx`/`.jsx`). Esta é pra projetos vanilla sem framework.
+
+---
+
 ## Regra 6 — Arquitetura / backend / domínio
 
 **Gatilho:** qualquer decisão de módulo novo, service, entidade de domínio.
@@ -513,3 +525,31 @@ O agente não instala automaticamente. Quando detectar uma lacuna, o agente:
 | `reuse-first` | Pesquisa web de soluções existentes | Antes de qualquer implementação |
 | `shunk031-research-before-implementation` | Busca bibs/frameworks relevantes | Antes de escrever código |
 | `reduce-reinvention` | Análise de reuso no projeto atual | Função/nova feature |
+
+---
+
+## Skills Frontend Vanilla instaladas — Referência Rápida
+
+| Skill | Uso | Gatilho automático |
+|-------|-----|-------------------|
+| `html-css-best-practices` | Semântica HTML, acessibilidade, CSS organizado | Qualquer arquivo `.html`/`.css`/`.js` sem framework |
+| `frontend-design` | Design distintivo, tipografia, paleta, composição | Trabalho visual em frontend vanilla |
+
+---
+
+## Skills Node.js/TypeScript/Backend instaladas — Referência Rápida
+
+| Skill | Uso | Gatilho automático |
+|-------|-----|-------------------|
+| `typescript-core` | Padrões avançados de TS (tipos, config, validação runtime) | Qualquer projeto TypeScript |
+| `nodejs-backend` | Setup de servidor com Express/Fastify, estrutura de pastas | Início de projeto backend Node.js |
+| `express-rest-api` | Rotas REST, validação, error handling com Express | Framework escolhido é Express |
+| `express-production` | Helmet, CORS, rate-limit, PM2, graceful shutdown | Deploy/produção com Express |
+| `fastify` | Framework de alta performance com schema-based validation | Performance critica ou TS-first |
+| `drizzle` | ORM type-safe com zero overhead, migrations, relações | Banco relacional (PG/MySQL/SQLite) |
+| `zod` | Schema validation com inference de tipos TypeScript | Validar inputs/outputs de qualquer dado |
+| `api-design-patterns` | REST/GraphQL/gRPC, versionamento, rate limiting, idempotency | Projetar qualquer API |
+| `jwt-authentication` | JWT access/refresh tokens, RBAC, password reset | Backend com autenticação |
+| `websocket-realtime-builder` | Socket.io, rooms, namespaces, presence, Redis adapter | Chat, notificações, dashboards ao vivo |
+| `tanstack-query` | Cache automático, background refetch, optimistic updates | Frontend React consumindo APIs |
+| `fusion-backend-dev` | Padrões de consumo/integração de APIs backend | Integrar com APIs existentes |
