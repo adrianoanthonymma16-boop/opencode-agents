@@ -156,14 +156,15 @@ Se um bug for reportado ou um teste falhar de forma não óbvia: `diagnosing-bug
 
 O agente nunca pula os passos 1–4 achando que "essa mudança é pequena". Só reduz o escopo do review se o usuário pedir explicitamente.
 
-### Ordem de Review — Resolução de sobreposição (Regras 9, 15.6, 17.4 e 19.6)
+### Ordem de Review — Resolução de sobreposição (Regras 9, 15.6, 17.4, 19.6 e 21.4)
 
-Quando um PR envolver Python, SQL/DB e/ou Node.js/TypeScript, as reviews rodam na seguinte ordem para evitar duplicação:
+Quando um PR envolver Python, SQL/DB, Node.js/TypeScript e/ou Docker, as reviews rodam na seguinte ordem para evitar duplicação:
 
 1. **Regra 9** — roda PRIMEIRO (review geral de código). É a gate de entrada.
 2. **Regra 15.6** — roda DEPOIS da Regra 9, apenas se o código for Python. Se a Regra 9 já cobriu tudo que a 15.6 faria, ela apenas confirma ("sem achados adicionais") e segue.
 3. **Regra 17.4** — roda EM PARALELO com a 15.6, apenas se houver queries SQL ou schema de banco. Não espera a 15.6 terminar.
 4. **Regra 19.6** — roda DEPOIS da Regra 9, apenas se o código for Node/TypeScript. Se a Regra 9 já cobriu tudo que a 19.6 faria, ela apenas confirma ("sem achados adicionais") e segue.
+5. **Regra 21.4** — roda EM PARALELO com as reviews de linguagem (15.6, 19.6), apenas se houver Dockerfile ou docker-compose.yml no PR. Não espera as outras reviews terminarem.
 
 **Regra prática:** se a Regra 9 já aprovou e não há SQL/DB no PR, a 15.6 (Python) e a 19.6 (Node) não rodam — o agente segue direto pro próximo passo. Nunca roda a mesma review duas vezes.
 
@@ -507,6 +508,7 @@ Ao detectar um projeto Node/TS, o agente SEMPRE verifica:
 - **Express**: `express-rest-api` — rotas, validação, error handling
 - **Express em produção**: `express-production` — Helmet, CORS, rate-limit, PM2
 - **Fastify**: `fastify` — schema-based validation, performance
+- **GraphQL**: `graphql-best-practices` — Apollo Server, GraphQL Yoga, schema-first vs code-first, DataLoader pra N+1
 
 ### 19.5 — Autenticação Node
 
@@ -534,6 +536,7 @@ Ao detectar um projeto Node/TS, o agente SEMPRE verifica:
 - `express-production` — se Express em produção
 - `ci-cd` — pipeline de CI/CD para Node
 - `vercel-optimize` — se deploy for Vercel/Next/Nuxt/Astro/SvelteKit
+- Monitoramento: `observability` — logs estruturados (pino, winston), métricas (Prometheus), tracing (OpenTelemetry), error tracking (Sentry)
 
 ### 19.8 — Realtime / WebSocket Node
 
@@ -601,6 +604,61 @@ Ao detectar um projeto Node/TS, o agente SEMPRE verifica:
 - Se o PR só mexe em Node mas o projeto tem React: Regra 20 **não** aciona (usa Regra 19 normalmente)
 - Se o PR só mexe em React mas o projeto tem Node: Regra 20 **não** aciona (usa Regra 5 normalmente)
 - Regra 20 **só** entra quando o PR toca nos dois lados
+
+---
+
+## Regra 21 — Docker / Containerização (_QUALIFICADOR_)
+
+> Esta regra se aplica a QUALQUER projeto que use Docker (presença de `Dockerfile`, `docker-compose.yml`, `.dockerignore`, ou menção a container/containerização). Aplica-se EM PARALELO com as regras gerais 0–14, nunca as substitui.
+
+### 21.1 — Detecção automática de Docker
+
+Ao detectar Docker no projeto, o agente SEMPRE verifica:
+1. **Tipo de uso** — Dockerfile (build), docker-compose (orquestração), ou ambos
+2. **Base image** — `node:*`, `python:*`, `alpine`, `distroless`
+3. **Multi-stage build** — se usa (build + runtime separados)
+4. **Registry** — Docker Hub, GHCR, ECR, ou privado
+
+### 21.2 — Escrita de Dockerfile
+
+**Gatilho:** qualquer Dockerfile sendo criado ou editado.
+
+**Ação automática:**
+- `docker-best-practices` — multi-stage build, layer caching, non-root user
+- `.dockerignore` obrigatório (`node_modules`, `.env`, `.git`)
+- Regras: usar imagem `alpine`/`distroless` quando possível; nunca rodar como root; copiar `package.json` antes do código (cache de layers)
+- Se Node: `node:20-alpine` como base; `npm ci` (não `npm install`)
+- Se Python: `python:3.12-slim` como base; `uv/pip` com `--no-cache-dir`
+
+### 21.3 — Docker Compose
+
+**Gatilho:** qualquer `docker-compose.yml` sendo criado ou editado.
+
+**Ação automática:**
+- `docker-compose-best-practices` — services, networks, volumes, healthchecks
+- `docker compose config` — validação automática antes de rodar
+- `hadolint` no Dockerfile (ou `docker build --no-cache` como fallback)
+- Sempre definir `healthcheck` pra serviços que dependem de banco
+- Sempre usar volumes nomeados (não bind mounts) pra dados persistentes
+
+### 21.4 — Code Review Docker
+
+**Gatilho:** PR ou merge que mexe em `Dockerfile`/`docker-compose.yml`.
+
+**Ação automática, nesta ordem:**
+1. `hadolint` — lint do Dockerfile
+2. `docker-best-practices` — conformidade
+3. Se houver superfície de ataque: `perform-security-review`
+4. Tag `[docker]` no commit
+
+### 21.5 — Deploy com Docker
+
+**Gatilho:** preparação para deploy de aplicação containerizada.
+
+**Ação automática:**
+- `ci-cd` — pipeline de CI/CD com build de imagem
+- Se registry: push automático pra GHCR/Docker Hub
+- Se Kubernetes: `k8s-best-practices` (se instalado)
 
 ---
 
