@@ -156,15 +156,16 @@ Se um bug for reportado ou um teste falhar de forma não óbvia: `diagnosing-bug
 
 O agente nunca pula os passos 1–4 achando que "essa mudança é pequena". Só reduz o escopo do review se o usuário pedir explicitamente.
 
-### Ordem de Review — Resolução de sobreposição (Regras 9, 15.6 e 17.4)
+### Ordem de Review — Resolução de sobreposição (Regras 9, 15.6, 17.4 e 19.6)
 
-Quando um PR envolver Python e/ou SQL/DB, as reviews rodam na seguinte ordem para evitar duplicação:
+Quando um PR envolver Python, SQL/DB e/ou Node.js/TypeScript, as reviews rodam na seguinte ordem para evitar duplicação:
 
 1. **Regra 9** — roda PRIMEIRO (review geral de código). É a gate de entrada.
 2. **Regra 15.6** — roda DEPOIS da Regra 9, apenas se o código for Python. Se a Regra 9 já cobriu tudo que a 15.6 faria, ela apenas confirma ("sem achados adicionais") e segue.
 3. **Regra 17.4** — roda EM PARALELO com a 15.6, apenas se houver queries SQL ou schema de banco. Não espera a 15.6 terminar.
+4. **Regra 19.6** — roda DEPOIS da Regra 9, apenas se o código for Node/TypeScript. Se a Regra 9 já cobriu tudo que a 19.6 faria, ela apenas confirma ("sem achados adicionais") e segue.
 
-**Regra prática:** se a Regra 9 já aprovou e não há SQL/DB no PR, a 15.6 não roda — o agente segue direto pro próximo passo. Nunca roda a mesma review duas vezes.
+**Regra prática:** se a Regra 9 já aprovou e não há SQL/DB no PR, a 15.6 (Python) e a 19.6 (Node) não rodam — o agente segue direto pro próximo passo. Nunca roda a mesma review duas vezes.
 
 ---
 
@@ -460,6 +461,146 @@ Ao detectar uso de banco relacional, o agente SEMPRE verifica:
 - Se o PR só mexe em Python mas o projeto tem React: Regra 18 **não** aciona (usa Regra 15 normalmente)
 - Se o PR só mexe em React mas o projeto tem Python: Regra 18 **não** aciona (usa Regra 5 normalmente)
 - Regra 18 **só** entra quando o PR toca nos dois lados
+
+---
+
+## Regra 19 — Desenvolvimento Node.js/TypeScript (_QUALIFICADOR_)
+
+> Esta regra se aplica a QUALQUER projeto Node.js/TypeScript detectado (presença de `package.json`, `tsconfig.json`, extensão `.ts`/`.tsx`/`.js`/`.jsx` como fonte principal, ou dependências `express`/`fastify`/`nestjs`). Aplica-se EM PARALELO com as regras gerais 0–14, nunca as substitui.
+
+### 19.1 — Detecção automática de projeto Node.js/TypeScript
+
+Ao detectar um projeto Node/TS, o agente SEMPRE verifica:
+1. **Framework backend** (Express/Fastify/NestJS) → carrega a skill correspondente automaticamente
+2. **Framework frontend** (React/Next/Nuxt/SvelteKit/Astro) → aciona Regra 5 automaticamente
+3. **Gerenciador de pacotes** (npm/pnpm/yarn/bun) → mantém o lockfile existente
+4. **TypeScript** → se `tsconfig.json` presente, `typescript-core` é acionado
+5. **Testes** → framework detectado (jest/vitest/playwright) → aciona Regra 8
+
+### 19.2 — Início de projeto Node.js/TypeScript
+
+**Gatilho:** novo projeto Node/TS ou primeiro `package.json` criado.
+
+**Ação automática, nesta ordem:**
+1. `nodejs-backend` — setup de servidor (Express/Fastify), estrutura de pastas
+2. `typescript-core` — configuração de TS (tipos, tsconfig, validação)
+3. Se framework detectado: `express-rest-api` / `fastify`
+4. `api-design-patterns` — se for API exposta
+5. Se banco relacional: `drizzle` + Regra 17 (SQL)
+
+### 19.3 — Escrita de código Node.js/TypeScript
+
+**Gatilho:** qualquer arquivo `.ts`/`.tsx`/`.js`/`.jsx` sendo criado ou editado.
+
+**Ação automática:**
+- `typescript-core` — aplicado durante toda escrita de código TS
+- `zod` — validação de inputs/outputs
+- Se backend: `express-rest-api` / `fastify`
+- Se banco: `drizzle`
+- Testes gerados automaticamente (Regra 8)
+
+### 19.4 — Frameworks backend Node
+
+**Gatilho:** detecção de framework específico.
+
+**Ação automática:**
+- **Express**: `express-rest-api` — rotas, validação, error handling
+- **Express em produção**: `express-production` — Helmet, CORS, rate-limit, PM2
+- **Fastify**: `fastify` — schema-based validation, performance
+
+### 19.5 — Autenticação Node
+
+**Gatilho:** qualquer código que lide com auth, JWT, sessão, RBAC.
+
+**Ação automática:**
+- `jwt-authentication` — access/refresh tokens, RBAC, password reset
+- **NUNCA** implementa auth do zero (Regra 16)
+
+### 19.6 — Code Review Node/TypeScript
+
+**Gatilho:** PR ou merge de código Node/TS.
+
+**Ação automática, nesta ordem:**
+1. `typescript-core` — conformidade com padrões TS
+2. `code-review` — review multi-dimensional
+3. Regra 9 (review geral) — já cobre
+4. Se houver superfície de ataque: `perform-security-review` + `typescript-security-review`
+
+### 19.7 — Deploy Node.js/TypeScript
+
+**Gatilho:** preparação para deploy de aplicação Node/TS.
+
+**Ação automática:**
+- `express-production` — se Express em produção
+- `ci-cd` — pipeline de CI/CD para Node
+- `vercel-optimize` — se deploy for Vercel/Next/Nuxt/Astro/SvelteKit
+
+### 19.8 — Realtime / WebSocket Node
+
+**Gatilho:** chat, notificações, dashboards ao vivo.
+
+**Ação automática:**
+- `websocket-realtime-builder` — Socket.io, rooms, namespaces, presence, Redis adapter
+
+### 19.9 — Frontend consumindo API Node
+
+**Gatilho:** frontend React/Next consumindo API Node.
+
+**Ação automática:**
+- `tanstack-query` — cache automático, background refetch, optimistic updates
+- `fusion-backend-dev` — padrões de integração com APIs backend
+
+### 19.10 — Debugging Node.js/TypeScript
+
+**Gatilho:** bug reportado ou erro não óbvio em código Node/TS.
+
+**Ação automática:**
+- `debugging` — técnicas de debug com inspector, source maps
+- `complexity` — se o bug estiver em código complexo
+
+### 19.11 — Documentação Node.js/TypeScript
+
+**Gatilho:** feature nova sem documentação ou pedido de docs.
+
+**Ação automática:**
+- `typescript-core` — JSDoc/TSDoc idiomáticos
+- `doc-coauthoring` — documentação estruturada
+- `changelog-generator` — changelog atualizado
+
+---
+
+## Regra 20 — Projeto Fullstack (Node + React no mesmo PR)
+
+> Esta regra se aplica quando um único PR ou commit envolve alterações tanto no backend Node quanto no frontend React/Next.js.
+
+### 20.1 — Ordem de execução
+
+**Ação automática, nesta ordem:**
+1. **Regra 19** (backend Node) — executa primeiro, resolve dependências de API
+2. **Regra 5** (frontend React) — executa depois, consome APIs do backend
+3. **Regra 9** (review unificado) — roda uma única vez cobrindo os dois lados
+4. **Regra 19.6** (review final Node) — confirma conformidade do backend
+
+### 20.2 — Commits
+
+**Ação automática:**
+- Separar em commits distintos quando possível: `[backend]` e `[frontend]`
+- Se não for possível separar (mudança acoplada): usar tag `[fullstack]`
+- Nunca misturar `[backend]` e `[frontend]` no mesmo commit sem justificativa
+
+### 20.3 — Testes
+
+**Ação automática:**
+- Rodar testes do backend (jest/vitest) **e** testes do frontend (jest/playwright) antes do merge
+- Se **um** falhar: **bloqueia o merge** — não aprova PR com teste falhando
+- Se ambos passarem: segue o fluxo normal de review (Regra 9)
+
+### 20.4 — Sobreposição com outras regras
+
+- Regra 5 e 19 rodam em sequência, não em paralelo
+- Se o PR só mexe em Node mas o projeto tem React: Regra 20 **não** aciona (usa Regra 19 normalmente)
+- Se o PR só mexe em React mas o projeto tem Node: Regra 20 **não** aciona (usa Regra 5 normalmente)
+- Regra 20 **só** entra quando o PR toca nos dois lados
 
 ---
 
