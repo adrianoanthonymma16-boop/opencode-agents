@@ -689,26 +689,27 @@ A rota completa tem 6 etapas. Cada etapa aciona UMA skill obrigatoriamente — s
 - Se o deploy for Node, a Regra 19.7 roda em conjunto com as etapas 3 e 4.
 - Se o deploy for Python, a Regra 15.7 roda em conjunto com as etapas 3 e 4.
 - Se o deploy for fullstack Node + React, a Regra 20 roda em conjunto com as etapas 2, 3 e 4.
+- A skill `ci-cd` (já instalada) roda em conjunto com as sub-regras 22.4, 22.5 e 22.6: ela cobre o pipeline de CI/CD base (stages, build, test, deploy), e as sub-regras adicionam por cima matrix/caching/artifacts, release/secrets/OIDC e reusable/self-hosted.
 - Commits de workflow usam tag `[ci]`; commits que mexem em Dockerfile junto usam `[ci][docker]`.
 
 ### 22.3 — Skills da rota instaladas (instaladas em 08/10/2026)
 
-| Skill | Origem | Installs | Por que foi escolhida |
-|-------|--------|----------|----------------------|
-| `create-github-action-workflow-specification` | github/awesome-copilot (fonte oficial GitHub) | 10.6K | Spec antes de YAML evita workflow ambíguo; formato AI-optimized pra manutenção futura |
-| `github-actions-templates` | wshobson/agents | 16.6K | Maior volume de templates prontos de CI/CD; auditoria Snyk: Low Risk |
-| `deployment-pipeline-design` | wshobson/agents | 13.3K | Única skill encontrada cobrindo approval gates, canary e promoção multi-ambiente; auditoria: Low Risk |
-| `ci-cd-security` | superagent-ai/skills | 7.4K | Só leitura de YAML, sem execução de shell; regras alinhadas a OpenSSF, GitHub Security Lab e zizmor — cobre os vetores reais de ataque em Actions |
-| `gh-fix-ci` | openai/skills (fonte oficial OpenAI) | 10.9K | Fluxo completo pega logs → resume → plano → corrige com aprovação; reduz iterações de debug de CI |
-| `gh-cli` | logicrw/gh-cli-skill | 1.3K | Substitui MCP do GitHub por CLI direto com `--json`/`--jq`; substituto do `gh-cli` original do awesome-copilot, que foi removido do repositório |
-| `github-actions-templates` (matrix) | wshobson/agents | 16.6K | Matrix builds para múltiplas versões de runtime/SO (mesma skill da etapa 2, usada com bloco `strategy.matrix`) |
-| `github-actions-caching` | não encontrada no registro (08/10/2026) | — | Cache de dependências com chave por lockfile; `find-skills` instala a equivalente no gatilho (Regra 0) |
-| `github-actions-artifacts` | não encontrada no registro (08/10/2026) | — | Upload/download de builds e cobertura entre jobs; `find-skills` instala a equivalente no gatilho (Regra 0) |
-| `github-release-automation` | não encontrada no registro (08/10/2026) | — | Tags + release notes automáticas; `find-skills` instala a equivalente no gatilho (Regra 0) |
-| `github-actions-secrets` | não encontrada no registro (08/10/2026) | — | Rotação, environments, secrets por ambiente; `find-skills` instala a equivalente no gatilho (Regra 0) |
-| `github-actions-oidc` | não encontrada no registro (08/10/2026) | — | Autenticação cloud sem secrets estáticos; `find-skills` instala a equivalente no gatilho (Regra 0) |
-| `github-actions-reusable` | não encontrada no registro (08/10/2026) | — | Workflows reutilizáveis (`workflow_call`); `find-skills` instala a equivalente no gatilho (Regra 0) |
-| `github-actions-self-hosted` | não encontrada no registro (08/10/2026) | — | Runners próprios (performance/custo); `find-skills` instala a equivalente no gatilho (Regra 0) |
+| Skill                                         | Origem                                        | Installs | Por que foi escolhida                                                                                                                             |
+|-----------------------------------------------|-----------------------------------------------|----------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| `create-github-action-workflow-specification` | github/awesome-copilot (fonte oficial GitHub) | 10.6K    | Spec antes de YAML evita workflow ambíguo; formato AI-optimized pra manutenção futura                                                             |
+| `github-actions-templates`                    | wshobson/agents                               | 16.6K    | Maior volume de templates prontos de CI/CD; auditoria Snyk: Low Risk                                                                              |
+| `deployment-pipeline-design`                  | wshobson/agents                               | 13.3K    | Única skill encontrada cobrindo approval gates, canary e promoção multi-ambiente; auditoria: Low Risk                                             |
+| `ci-cd-security`                              | superagent-ai/skills                          | 7.4K     | Só leitura de YAML, sem execução de shell; regras alinhadas a OpenSSF, GitHub Security Lab e zizmor — cobre os vetores reais de ataque em Actions |
+| `gh-fix-ci`                                   | openai/skills (fonte oficial OpenAI)          | 10.9K    | Fluxo completo pega logs → resume → plano → corrige com aprovação; reduz iterações de debug de CI                                                 |
+| `gh-cli`                                      | logicrw/gh-cli-skill                          | 1.3K     | Substitui MCP do GitHub por CLI direto com `--json`/`--jq`; substituto do `gh-cli` original do awesome-copilot, que foi removido do repositório   |
+| `github-actions-templates` (matrix)           | wshobson/agents                               | 16.6K    | Matrix builds para múltiplas versões de runtime/SO (mesma skill da etapa 2, usada com bloco `strategy.matrix`)                                    |
+| `github-actions-caching`                      | não encontrada no registro (08/10/2026)       | —        | Cache de dependências com chave por lockfile; `find-skills` instala a equivalente no gatilho (Regra 0)                                            |
+| `github-actions-artifacts`                    | não encontrada no registro (08/10/2026)       | —        | Upload/download de builds e cobertura entre jobs; `find-skills` instala a equivalente no gatilho (Regra 0)                                        |
+| `github-release-automation`                   | não encontrada no registro (08/10/2026)       | —        | Tags + release notes automáticas; `find-skills` instala a equivalente no gatilho (Regra 0)                                                        |
+| `github-actions-secrets`                      | não encontrada no registro (08/10/2026)       | —        | Rotação, environments, secrets por ambiente; `find-skills` instala a equivalente no gatilho (Regra 0)                                             |
+| `github-actions-oidc`                         | não encontrada no registro (08/10/2026)       | —        | Autenticação cloud sem secrets estáticos; `find-skills` instala a equivalente no gatilho (Regra 0)                                                |
+| `github-actions-reusable`                     | não encontrada no registro (08/10/2026)       | —        | Workflows reutilizáveis (`workflow_call`); `find-skills` instala a equivalente no gatilho (Regra 0)                                               |
+| `github-actions-self-hosted`                  | não encontrada no registro (08/10/2026)       | —        | Runners próprios (performance/custo); `find-skills` instala a equivalente no gatilho (Regra 0)                                                    |
 
 > Nota: a skills.sh marcou `ci-cd-security` como "Critical Risk" no Snyk — é falso positivo: o conteúdo descreve padrões de ataque pra DETECTÁ-los, não explora nada. Skill é read-only.
 > Nota: as 7 skills das sub-regras 22.4–22.6 não existem no registro com esses nomes (verificado em 08/10/2026 contra `skills.sh`, `wshobson/agents` e `superagent-ai/skills`). Os nomes são nominais: quando o gatilho bater, o agente roda `find-skills` (Regra 0), instala a alternativa equivalente e informa o que instalou.
@@ -725,6 +726,25 @@ A rota completa tem 6 etapas. Cada etapa aciona UMA skill obrigatoriamente — s
 Se o build demorar > 5 min: aplicar caching obrigatoriamente.
 Se o projeto tiver múltiplas versões suportadas (Node LTS, Python 3.10+): aplicar matrix obrigatoriamente.
 
+**Exemplo (matrix + cache no mesmo job):**
+
+```yaml
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [18.x, 20.x, 22.x]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm   # cache de dependências com chave por lockfile
+```
+
 ### 22.5 — Releases, secrets e OIDC
 
 **Gatilho:** release automática OU autenticação em cloud (AWS/GCP/Azure).
@@ -736,6 +756,26 @@ Se o projeto tiver múltiplas versões suportadas (Node LTS, Python 3.10+): apli
 
 Se o projeto for open source: NUNCA usar secrets estáticos para cloud — usar OIDC obrigatoriamente.
 Se o projeto tiver > 1 ambiente (dev/staging/prod): usar environments com aprovação obrigatória antes do deploy em prod.
+
+**Exemplo (OIDC + environment com aprovação):**
+
+```yaml
+permissions:
+  id-token: write   # obrigatório pra trocar o token OIDC
+  contents: read
+
+jobs:
+  deploy-prod:
+    runs-on: ubuntu-latest
+    environment: prod   # no repo: environment com "Required reviewers"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/gha-deploy
+          aws-region: us-east-1
+      - run: ./deploy.sh
+```
 
 ### 22.6 — Reusable workflows e self-hosted runners
 
