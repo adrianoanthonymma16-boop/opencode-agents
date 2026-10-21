@@ -73,6 +73,65 @@ Antes de decisões técnicas relevantes (escolha de lib, arquitetura, provider):
 
 Se o pedido for só um mockup rápido pra validar ideia: `gsd-sketch`/`prototype` substitui os passos 2–3.
 
+Se o trabalho incluir SVG/ícone/ilustração, animação própria ou gráfico, as Regras 4.1, 4.2 e 4.3 rodam junto — não são opcionais por serem "só um detalhe".
+
+---
+
+## Regra 4.1 — SVG e ilustrações animadas
+
+> Regra complementar à Regra 4. Skills: `svg-animations` (instalada em 21/10/2026, origem `supermemoryai/skills`).
+
+**Gatilho:** criar ou editar SVG, ícone, ilustração, logo animado, spinner/loader, path drawing, morph de forma, mascote vetorial, ou pedido de "desenha/anima em SVG".
+
+**Ação automática:** `svg-animations` durante a escrita, não como revisão posterior. Regras obrigatórias:
+
+1. **`viewBox` sempre; `width`/`height` nunca hardcoded** no SVG — o tamanho vem do container (`className="h-6 w-6"` ou CSS). Sem `viewBox`, o SVG não escala.
+2. **Cor por token, nunca hex fixo** — `fill="currentColor"` ou `var(--foreground)`/`var(--primary)`. SVG com hex fixo quebra o tema claro/escuro (bug já visto em produção neste ecossistema).
+3. **Acessibilidade:** SVG com significado → `role="img"` + `<title>` (e `<desc>` se necessário); decorativo → `aria-hidden="true"` + `focusable="false"`. Ícone dentro de botão com texto não precisa de `<title>`.
+4. **Toda animação respeita `prefers-reduced-motion`** — envolver em `@media (prefers-reduced-motion: no-preference)` ou desligar em `reduce`. Movimento decorativo nunca é obrigatório.
+5. **`transform-origin: center` explícito** quando o SVG é inlinado — transform em SVG parte de (0,0), não do centro do elemento.
+6. **SMIL só para SVG autocontido** (`<img src="*.svg">`, `background-image`), onde CSS/JS não alcançam. SVG inline → CSS ou WAAPI, para coordenar com o resto da página.
+7. **Animar `transform`, `opacity` e `stroke-dashoffset`;** animar `d`/`points`/atributos de geometria causa repaint — aceitável só em SVG pequeno e simples. Ver Regra 4.2.
+8. **`will-change` é último recurso** — só depois de medir shift de 1px ou frames perdidos; nunca em `*` nem em containers grandes.
+9. Path drawing: `stroke-linecap="round"` + comprimento real via `getTotalLength()` (não estimar o `stroke-dasharray` a olho).
+
+---
+
+## Regra 4.2 — Movimento, transições e performance de animação
+
+> Regra complementar à Regra 4. Skills: `animation-performance` (instalada em 21/10/2026, origem `emilkowalski/skills`) e `impeccable/reference/animate.md`.
+
+**Gatilho:** qualquer `transition`, `@keyframes`, `animate`, hover/focus animado, drawer, toast, accordion, scroll effect, parallax, page transition, indicador de aba, carregamento — ou relato de animação travando/engasgando.
+
+**Ação automática:** `animation-performance` aplicada durante a escrita e, obrigatoriamente, quando houver jank reportado.
+
+1. **Compor de graça: só `transform` e `opacity`.** Qualquer outra propriedade exige justificativa. `filter`, `clip-path` e `background-color` ganham suporte, mas precisam de teste no alvo.
+2. **`transition: all` é proibido.** Listar as propriedades exatas (`transition-property: transform, opacity`).
+3. **Descer de tier em vez de animar layout:** `width`/`height`/`padding` → `scale()`; `top`/`left`/`margin` → `translate()`; `box-shadow` → `filter: drop-shadow()`; `display`/`visibility` → `opacity`.
+4. **Nunca animar via estado do React** — nada de `setState` em `requestAnimationFrame`, `pointermove`, `scroll` ou drag. Usar `ref.current.style.transform`/motion value.
+5. **CSS ou WAAPI para o que toca durante navegação, fetch, hidratação ou long task;** lib JS (Framer Motion/GSAP) só quando precisar de spring real, gesto, exit animation ou shared layout — e nesse caso expor o custo.
+6. **Variável CSS herdada + `transform` = armadilha de performance** (recalcula estilo de toda a árvore por frame). Escrever o `transform` direto no elemento.
+7. **`filter: blur()` animado abaixo de 20px** (2–5px basta para crossfade). Acima disso, principalmente no Safari, derruba frames.
+8. **`prefers-reduced-motion: reduce` desliga toda animação não essencial** — inclusive hover, entrada de card e shimmer de skeleton.
+9. **Diagnóstico de jank obedece à ordem:** propriedade errada → main thread ocupada → re-render por frame → CSS var herdada → blur → `will-change`. Nomear a causa antes de mudar código; "ficou mais suave" sem causa não é diagnóstico, e "está fluido na minha máquina" nunca encerra o assunto (a régua é celular médio, 8ms por frame em 120Hz).
+
+---
+
+## Regra 4.3 — Gráficos e dataviz
+
+> Regra complementar à Regra 4. Consulta `ui-ux-pro-max` (`data/charts.csv`, 25 tipos) e, para bibliotecas, a Regra 16.
+
+**Gatilho:** gráfico, chart, dashboard, série temporal, ranking visual, sparkline, mapa de calor, comparativo de partido/votação.
+
+**Ação automática, nesta ordem:**
+
+1. **Escolher o tipo pelo dado, não pelo gosto:** checar `ui-ux-pro-max/data/charts.csv` (tipo primário, alternativa, quando NÃO usar, volume, cor, grau de acessibilidade, lib recomendada).
+2. **Antes de adicionar biblioteca de gráfico (recharts, chart.js, d3, visx): Regra 16** — pesquisa de reuso + decisão registrada. Barra/linha simples de série única se faz com SVG/CSS à mão; biblioteca só se trouxer interação, escala ou eixo que justifique o peso no bundle.
+3. **Todo gráfico precisa de equivalente textual** — `<table class="sr-only">` com os valores ou `aria-label`/`<figcaption>` resumindo a leitura. Cor nunca é o único canal para distinguir série (usar também forma, rótulo ou padrão).
+4. **Cores de série derivam de tokens do tema** (claro/escuro), com contraste ≥ 3:1 para elementos gráficos e ≥ 4.5:1 para texto de eixo/rótulo.
+5. **Animação de entrada do gráfico obedece à Regra 4.2** (transform/opacity, sem re-render por frame) e é desligada em `prefers-reduced-motion`.
+6. **Sem eixo truncado silencioso:** quando o eixo não parte de zero, sinalizar visualmente (é leitura política, não só estética).
+
 ---
 
 ## Regra 5 — Código de frontend (React/Next.js e afins)
@@ -864,6 +923,15 @@ O agente não instala automaticamente. Quando detectar uma lacuna, o agente:
 |-------|-----|-------------------|
 | `html-css-best-practices` | Semântica HTML, acessibilidade, CSS organizado | Qualquer arquivo `.html`/`.css`/`.js` sem framework |
 | `frontend-design` | Design distintivo, tipografia, paleta, composição | Trabalho visual em frontend vanilla |
+
+---
+
+## Skills de Design Complementares instaladas — Referência Rápida
+
+| Skill | Uso | Gatilho automático |
+|-------|-----|-------------------|
+| `svg-animations` | SVG à mão: `viewBox`, path drawing, morph, SMIL vs CSS/WAAPI, a11y | Qualquer SVG/ícone/ilustração/loader (Regra 4.1) |
+| `animation-performance` | Diagnóstico e correção de jank; tiers de propriedade, main thread, `will-change` | Qualquer transição/keyframe ou relato de animação travando (Regra 4.2) |
 
 ---
 
