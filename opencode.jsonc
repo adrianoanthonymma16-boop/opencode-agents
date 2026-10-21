@@ -8,6 +8,36 @@
       "~/.config/opencode/gsd-core/*": "allow"
     }
   },
+  "model": "opencode/mimo-v2.5-free",
+  "provider": {
+    "opencode": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OpenCode Zen",
+      "options": {
+        "baseURL": "https://opencode.ai/zen/v1"
+      },
+      "models": {
+        "mimo-v2.5-free": {
+          "name": "MiMo V2.5 Free"
+        }
+      }
+    },
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama (local)",
+      "options": {
+        "baseURL": "http://localhost:11434/v1"
+      },
+      "models": {
+        "deepseek-coder:1.3b": {
+          "name": "DeepSeek Coder 1.3B (local)"
+        },
+        "qwen2.5:3b": {
+          "name": "Qwen 2.5 3B (local)"
+        }
+      }
+    }
+  },
   "mcp": {
     "gsd": {
       "type": "local",
