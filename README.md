@@ -4,7 +4,7 @@ Configuração de engenharia que roda comigo em **todo** projeto, dentro do
 [OpenCode](https://opencode.ai). Não é um boilerplate: é o conjunto de regras,
 skills e agentes que decide o que acontece antes de eu escrever uma linha de código.
 
-[![Skills](https://img.shields.io/badge/skills-117-F1EFF6?style=flat-square)](skills)
+[![Skills](https://img.shields.io/badge/skills-119-F1EFF6?style=flat-square)](skills)
 [![Agentes](https://img.shields.io/badge/agentes-35-F1EFF6?style=flat-square)](agents)
 [![Comandos](https://img.shields.io/badge/comandos-71-F1EFF6?style=flat-square)](commands)
 
